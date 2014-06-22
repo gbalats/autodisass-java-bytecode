@@ -1,6 +1,11 @@
 ;;; autodisass-java-bytecode --- Automatically disassemble Java bytecode
 
-;; Copyright (C) 2014, George Balatsouras <gbalats(at)gmail(dot)com>
+;; Copyright (C) 2014, George Balatsouras
+;;
+;; Author: George Balatsouras <gbalats(at)gmail(dot)com>
+;; Maintainer: George Balatsouras <gbalats(at)gmail(dot)com>
+;; Created: 22 Jun 2014
+;; Keywords: convenience, data, files
 ;;
 ;; This file is NOT part of Emacs.
 ;;
