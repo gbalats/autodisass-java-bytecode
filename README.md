@@ -5,6 +5,7 @@ This package enables the automatic disassembly of Java bytecode inside
 Emacs buffers.
 
 Disassembly can happen in two cases:
+
 1. when opening a Java .class file
 2. when extracting a .class file inside a jar
 
