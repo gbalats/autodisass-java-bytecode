@@ -2,7 +2,9 @@ autodisass-java-bytecode
 ========================
 
 This package enables the automatic disassembly of Java bytecode inside
-Emacs buffers.
+Emacs buffers. It was inspired by a
+[blog post](http://nullprogram.com/blog/2012/08/01/) of
+[Christopher Wellons](https://github.com/skeeto).
 
 Disassembly can happen in two cases:
 
