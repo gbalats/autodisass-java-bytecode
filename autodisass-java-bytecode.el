@@ -52,126 +52,89 @@
 ;;; Code:
 
 
-;; Add handlers for automatically disassembling .class files
-(add-to-list 'file-name-handler-alist
-             '("\\.class$" . autodisass-java-handler))
+(defconst autodisass-java-bytecode-version "0.1")
 
-;; Add hook for automatically disassembling .class files inside jars
-(add-hook 'archive-extract-hooks
-          (lambda () (cond ((and (executable-find "javap")
-                                 (string-match "\\.class$" (buffer-file-name)))
-                            (autodisass-inside-jar)))))
+(defgroup autodisass-java-bytecode nil
+  "Automatic disassembly of Java bytecode."
+  :tag    "Java Bytecode Disassembly"
+  :prefix "ad-java-bytecode-"
+  :group  'autodisass)
 
 
-;;---------------------------------------------------------------
-;; Auto-extracting and disassembly of Java bytecode inside jars
-;;---------------------------------------------------------------
+(defconst ad-java-bytecode-regexp "\\.class$"
+  "Regular expressions that matches Java bytecode files.")
 
-(defun autodisass-inside-jar ()
-  "Disassembles a Java class-file inside a jar archive."
-  (let*
-      ((components (split-string (buffer-file-name) ":"))
-       (jar-file   (car components))
-       (class-file (cadr components)))
 
-    ;; Erase previous contents
+(defcustom ad-java-bytecode-disassembler "javap"
+  "Return the name of the disassembler command.
+If the command is not on your path, you may specify a fully
+qualified path to it.  The command should accept the input file
+name as its last argument and print the disassembled file on the
+output stream."
+  :tag "Disassembler command"
+  :group 'autodisass-java-bytecode
+  :type 'string)
+
+
+(defcustom ad-java-bytecode-parameters
+  '("-private" "-verbose")
+  "Extra parameters for the disassembler process."
+  :tag "Command line options"
+  :group 'autodisass-java-bytecode
+  :type '(repeat string))
+
+
+(defun ad-java-bytecode-disassemble-p (file)
+  "Return t if automatic disassembly should be performed for FILE."
+  (and (string-match ad-java-bytecode-regexp file)
+       (executable-find ad-java-bytecode-disassembler)
+       (y-or-n-p (format "Disassemble %s using %s? " file
+                         ad-java-bytecode-disassembler))))
+
+
+(defun ad-java-bytecode-class-name (class-file)
+  "Return the corresponding CLASS-NAME of a CLASS-FILE."
+  (replace-regexp-in-string
+   "/" "." (file-name-sans-extension class-file)))
+
+
+(defun ad-java-bytecode-buffer (class-file &optional jar-file)
+  "Disassembles a Java CLASS-FILE inside the current buffer, using `javap'.
+The JAR-FILE argument is non-nil if the disassembly is happening
+inside a jar archive, during auto-extraction."
+  (let ((class-name  (ad-java-bytecode-class-name class-file))
+        (class-path  (or jar-file (file-name-directory class-file))))
+    (message "Disassembling %s" class-file)
+    ;; erase previous contents
     (erase-buffer)
-
-    ;; Now disassemble bytecode inside empty buffer
-    (autodisass-bytecode-buffer class-file jar-file)
-
-    ;; Display some info on what just happened
+    ;; disassemble .class file
+    (apply 'call-process ad-java-bytecode-disassembler nil t nil
+           (append ad-java-bytecode-parameters
+                   (list "-classpath" class-path
+                         (if jar-file class-name class-file))))
+    ;; set some properties
+    (setq buffer-read-only t)           ; mark as modified
+    (set-buffer-modified-p nil)         ; mark as read-only
+    (goto-char (point-min))             ; jump to top
+    (when (fboundp 'javap-mode)         ; switch to `javap-mode'
+      (javap-mode))
     (message "Disassembled %s" class-file)))
 
 
-;;------------------------------
-;; Java Bytecode Disassembly
-;;------------------------------
+;; Add hook fora automatically disassembling .class files
+(add-hook 'find-file-hooks
+          (lambda () (let ((class-file (buffer-file-name)))
+                       (when (ad-java-bytecode-disassemble-p class-file)
+                         (ad-java-bytecode-buffer class-file)))))
 
-(defun autodisass-bytecode-buffer (class-file &optional jar-file)
-  "Disassembles a Java CLASS-FILE inside the current buffer, using `javap'.
-
-The JAR-FILE argument is non-nil if the disassembly is happening
-inside a jar archive, during auto-extraction."
-
-  (let* ((inside-jar-p (not (eq jar-file nil)))
-         (dirname      (file-name-directory class-file))
-         (filename     (file-name-nondirectory class-file))
-         (classname    (file-name-sans-extension filename))
-         (classpath    dirname))
-
-    ;; fully qualify class name if inside jar; adjust classpath as
-    ;; well
-    (when inside-jar-p
-      (setq classpath jar-file)
-      (setq classname (replace-regexp-in-string
-                       "/" "." (file-name-sans-extension class-file)))
-      (rename-buffer (concat classname
-                           " (" (file-name-nondirectory jar-file) ")")))
-
-    ;; Disassemble .class file
-    (call-process "javap" nil t nil "-private" "-verbose"
-                  "-classpath" classpath classname)
-
-    ;; Set buffer's filename
-    (setq buffer-file-name
-          (if inside-jar-p (concat jar-file ":" class-file) class-file))
-
-    ;; Set read-only mode for this buffer
-    (setq buffer-read-only t)
-
-    ;; Mark the buffer as unmodified
-    (set-buffer-modified-p nil)
-
-    ;; Jump to the beginning of the buffer
-    (goto-char (point-min))
-
-    ;; Switch to `javap-mode'
-    (when (fboundp 'javap-mode)
-      (javap-mode))))
-
-
-;;------------------------------
-;; Java bytecode handlers
-;;------------------------------
-
-(defun autodisass-java-handler (op &rest args)
-  "Handle .class files by putting the output of `javap' in the buffer.
-
-OP is the name of the I/O primitive to be handled; ARGS are the
-arguments that were passed to that primitive.  This function only
-applies to `get-file-buffer' operations."
-  (cond
-   ((and (eq op 'get-file-buffer) (executable-find "javap"))
-     (let* ((class-file  (car args))
-            (buffer-name (file-name-nondirectory class-file)))
-
-       ;; Create new buffer to hold the output of `javap'
-       (with-current-buffer (generate-new-buffer buffer-name)
-
-         ;; Disassemble bytecode inside buffer
-         (autodisass-bytecode-buffer class-file)
-
-         ;; Display some info on what just happened
-         (message "Disassembled %s" class-file)
-
-         ;; Return current buffer
-         (current-buffer))))
-
-   ((autodisass-java--default-handler op args))))
-
-
-(defun autodisass-java--default-handler (operation args)
-  "Run the real handler to avoid automatic disassembly.
-
-OPERATION is the name of the I/O primitive to be handled; ARGS
-are the arguments that were passed to that primitive."
-  (let ((inhibit-file-name-handlers
-         (cons 'autodisass-java-handler
-               (and (eq inhibit-file-name-operation operation)
-                          inhibit-file-name-handlers)))
-        (inhibit-file-name-operation operation))
-    (apply operation args)))
+;; Add hook for automatically disassembling .class files inside jars
+(add-hook 'archive-extract-hooks
+          (lambda ()
+            (let* ((components (split-string (buffer-file-name) ":"))
+                   (jar-file   (car components))
+                   (class-file (cadr components)))
+              (when (ad-java-bytecode-disassemble-p class-file)
+                (ad-java-bytecode-buffer class-file jar-file)))))
 
 
 (provide 'autodisass-java-bytecode)
