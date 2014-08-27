@@ -122,7 +122,7 @@ inside a jar archive, during auto-extraction."
 
 
 ;; Add hook fora automatically disassembling .class files
-(add-hook 'find-file-hooks
+(add-hook 'find-file-hook
           (lambda () (let ((class-file (buffer-file-name)))
                        (when (ad-java-bytecode-disassemble-p class-file)
                          (ad-java-bytecode-buffer class-file)))))
