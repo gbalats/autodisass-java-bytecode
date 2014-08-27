@@ -113,6 +113,7 @@ inside a jar archive, during auto-extraction."
                    (list "-classpath" class-path
                          (if jar-file class-name class-file))))
     ;; set some properties
+    (set-visited-file-name nil)
     (setq buffer-read-only t)           ; mark as modified
     (set-buffer-modified-p nil)         ; mark as read-only
     (goto-char (point-min))             ; jump to top
