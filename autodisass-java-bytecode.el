@@ -118,7 +118,8 @@ inside a jar archive, during auto-extraction."
     (set-buffer-modified-p nil)         ; mark as read-only
     (goto-char (point-min))             ; jump to top
     (when (fboundp 'javap-mode)         ; switch to `javap-mode'
-      (javap-mode))
+      (javap-mode)
+      (remove-hook 'find-file-hook (car find-file-hook)))
     (message "Disassembled %s" class-file)))
 
 
