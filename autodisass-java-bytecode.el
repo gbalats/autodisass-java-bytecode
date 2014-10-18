@@ -1,4 +1,4 @@
-;;; autodisass-java-bytecode --- Automatically disassemble Java bytecode
+;;; autodisass-java-bytecode.el --- Automatically disassemble Java bytecode
 
 ;; Copyright (C) 2014, George Balatsouras
 ;;
@@ -36,7 +36,6 @@
 ;;
 ;; It was inspired by a blog post of Christopher Wellons:
 ;;    http://nullprogram.com/blog/2012/08/01/
-
 ;;
 ;; Disassembly can happen in two cases:
 ;; (a) when opening a Java .class file
@@ -123,7 +122,7 @@ inside a jar archive, during auto-extraction."
     (message "Disassembled %s" class-file)))
 
 
-;; Add hook fora automatically disassembling .class files
+;; Add hook for automatically disassembling .class files
 (add-hook 'find-file-hook
           (lambda () (let ((class-file (buffer-file-name)))
                        (when (ad-java-bytecode-disassemble-p class-file)
@@ -141,4 +140,4 @@ inside a jar archive, during auto-extraction."
 
 (provide 'autodisass-java-bytecode)
 
-;;; autodisass-java-bytecode ends here
+;;; autodisass-java-bytecode.el ends here
