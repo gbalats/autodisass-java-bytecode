@@ -102,10 +102,14 @@ output stream."
 The JAR-FILE argument is non-nil if the disassembly is happening
 inside a jar archive, during auto-extraction."
   (let ((class-name  (ad-java-bytecode-class-name class-file))
-        (class-path  (or jar-file (file-name-directory class-file))))
+        (class-path  (or jar-file (file-name-directory class-file)))
+        (orig-buffer-name      (buffer-name))
+        (orig-buffer-file-name (buffer-file-name)))
+    ;; kill previous buffer
+    (kill-buffer orig-buffer-name)
+    ;; create and select new buffer with disassembled contents
+    (switch-to-buffer (generate-new-buffer orig-buffer-name))
     (message "Disassembling %s" class-file)
-    ;; erase previous contents
-    (erase-buffer)
     ;; disassemble .class file
     (apply 'call-process ad-java-bytecode-disassembler nil t nil
            (append ad-java-bytecode-parameters
@@ -113,13 +117,18 @@ inside a jar archive, during auto-extraction."
                          (if jar-file class-name class-file))))
     ;; set some properties
     (set-visited-file-name nil)
+    (setq buffer-file-name orig-buffer-file-name)
     (setq buffer-read-only t)           ; mark as modified
     (set-buffer-modified-p nil)         ; mark as read-only
     (goto-char (point-min))             ; jump to top
     (when (fboundp 'javap-mode)         ; switch to `javap-mode'
-      (javap-mode)
-      (remove-hook 'find-file-hook (car find-file-hook)))
-    (message "Disassembled %s" class-file)))
+      ;; Make sure that `find-file-hook' is not changed by introducing
+      ;; another local binding
+      (make-local-variable 'find-file-hook)
+      (let ((find-file-hook nil))
+        (javap-mode)))
+    (message "Disassembled %s" class-file)
+    (current-buffer)))
 
 
 ;; Add hook for automatically disassembling .class files
