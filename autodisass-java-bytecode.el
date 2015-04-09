@@ -5,6 +5,7 @@
 ;; Author: George Balatsouras <gbalats(at)gmail(dot)com>
 ;; Maintainer: George Balatsouras <gbalats(at)gmail(dot)com>
 ;; Created: 22 Jun 2014
+;; Version: 1.2
 ;; Keywords: convenience, data, files
 ;;
 ;; This file is NOT part of Emacs.
@@ -49,6 +50,9 @@
 ;; performs the disassembly.
 
 ;;; Code:
+
+
+(require 'javap-mode nil 'noerror)
 
 
 (defconst autodisass-java-bytecode-version "0.1")
