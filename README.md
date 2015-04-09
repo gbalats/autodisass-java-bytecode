@@ -1,3 +1,7 @@
+[![License GPL 3][badge-license]][copying]
+[![MELPA][melpa-badge]][melpa-package]
+[![MELPA Stable][melpa-stable-badge]][melpa-stable-package]
+
 autodisass-java-bytecode
 ========================
 
@@ -23,3 +27,10 @@ To use, save [this .el file](autodisass-java-bytecode.el) to a
 directory in your *load-path*, and add the following to your `.emacs`:
 
     (require 'autodisass-java-bytecode)
+
+
+[badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
+[melpa-badge]: http://melpa.org/packages/autodisass-java-bytecode-badge.svg
+[melpa-stable-badge]: http://stable.melpa.org/packages/autodisass-java-bytecode-badge.svg
+[melpa-package]: http://melpa.org/#/autodisass-java-bytecode
+[melpa-stable-package]: http://stable.melpa.org/#/autodisass-java-bytecode
