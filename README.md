@@ -23,8 +23,20 @@ extension to have any effect, since that is the tool that actually
 performs the disassembly.
 
 
-To use, save [this .el file](autodisass-java-bytecode.el) to a
-directory in your *load-path*, and add the following to your `.emacs`:
+# Installation
+
+You can install this package using the `package.el` built-in package
+manager in Emacs. It is available on [MELPA](http://melpa.org/#/) and
+[MELPA Stable](http://stable.melpa.org/#/) repos.
+
+If you have these enabled, simply run:
+
+    M-x package-install [RET] autodisass-java-bytecode [RET]
+
+
+Alternatively, you can save
+[this .el file](autodisass-java-bytecode.el) to a directory in your
+*load-path*, and add the following to your `.emacs`:
 
     (require 'autodisass-java-bytecode)
 
