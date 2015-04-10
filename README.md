@@ -23,7 +23,7 @@ extension to have any effect, since that is the tool that actually
 performs the disassembly.
 
 
-# Installation
+## Installation
 
 You can install this package using the `package.el` built-in package
 manager in Emacs. It is available on [MELPA](http://melpa.org/#/) and
