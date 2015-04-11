@@ -53,7 +53,7 @@
 (require 'javap-mode nil 'noerror)
 
 
-(defconst autodisass-java-bytecode-version "0.1")
+(defconst autodisass-java-bytecode-version "1.2")
 
 (defgroup autodisass-java-bytecode nil
   "Automatic disassembly of Java bytecode."
