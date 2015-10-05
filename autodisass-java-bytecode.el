@@ -5,7 +5,7 @@
 ;; Author: George Balatsouras <gbalats(at)gmail(dot)com>
 ;; Maintainer: George Balatsouras <gbalats(at)gmail(dot)com>
 ;; Created: 22 Jun 2014
-;; Version: 1.2
+;; Version: 1.3
 ;; Keywords: convenience, data, files
 ;;
 ;; This file is NOT part of Emacs.
@@ -49,7 +49,7 @@
 
 (require 'ad-javap-mode)
 
-(defconst autodisass-java-bytecode-version "1.2")
+(defconst autodisass-java-bytecode-version "1.3")
 
 (defgroup autodisass-java-bytecode nil
   "Automatic disassembly of Java bytecode."
