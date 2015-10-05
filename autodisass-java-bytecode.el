@@ -40,9 +40,6 @@
 ;; (a) when opening a Java .class file
 ;; (b) when disassembling a .class file inside a jar
 ;;
-;; When `javap-mode' is available, it is automatically selected for the
-;; current Java bytecode-containing buffer.
-;;
 ;; In any case, `javap' must be installed in the system for this
 ;; extension to have any effect, since that is the tool that actually
 ;; performs the disassembly.
@@ -50,8 +47,7 @@
 ;;; Code:
 
 
-(require 'javap-mode nil 'noerror)
-
+(require 'ad-javap-mode)
 
 (defconst autodisass-java-bytecode-version "1.2")
 
@@ -123,12 +119,7 @@ inside a jar archive, during auto-extraction."
     (setq buffer-read-only t)           ; mark as modified
     (set-buffer-modified-p nil)         ; mark as read-only
     (goto-char (point-min))             ; jump to top
-    (when (fboundp 'javap-mode)         ; switch to `javap-mode'
-      ;; Make sure that `find-file-hook' is not changed by introducing
-      ;; another local binding
-      (make-local-variable 'find-file-hook)
-      (let ((find-file-hook nil))
-        (javap-mode)))
+    (ad-javap-mode)
     (message "Disassembled %s" class-file)
     (current-buffer)))
 
