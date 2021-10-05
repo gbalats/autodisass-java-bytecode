@@ -81,12 +81,20 @@ output stream."
   :type '(repeat string))
 
 
+(defcustom ad-java-bytecode-prompt t
+  "Prompt before disassembling. If false, will automatically disassemble."
+  :tag "Prompt"
+  :group 'autodisass-java-bytecode
+  :type 'boolean)
+
+
 (defun ad-java-bytecode-disassemble-p (file)
   "Return t if automatic disassembly should be performed for FILE."
   (and (string-match ad-java-bytecode-regexp file)
        (executable-find ad-java-bytecode-disassembler)
-       (y-or-n-p (format "Disassemble %s using %s? " file
-                         ad-java-bytecode-disassembler))))
+       (or (not ad-java-bytecode-prompt)
+           (y-or-n-p (format "Disassemble %s using %s? " file
+                             ad-java-bytecode-disassembler)))))
 
 
 (defun ad-java-bytecode-class-name (class-file)
